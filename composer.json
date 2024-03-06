@@ -1,0 +1,16 @@
+{
+    "name": "martinshaw/street-group-interview-tech-test",
+    "type": "project",
+    "autoload": {
+        "psr-4": {
+            "Martinshaw\\StreetGroupInterviewTechTest\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Martin Shaw",
+            "email": "hello@martinshaw.co"
+        }
+    ],
+    "require": {}
+}
