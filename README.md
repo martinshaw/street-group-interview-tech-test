@@ -19,10 +19,12 @@ While it doesn't use any external dependencies, it does use modern PSR-4 autoloa
 To use this functionality as a CLI tool, run the following command:
 
 ```bash
-php ./src/cli.php <optional-csv-file-path>
+php ./src/cli.php
+php ./src/cli.php ./data/examples.csv
+php ./src/cli.php ./data/examples_with_errors.csv
 ```
 
-If you don't provide a CSV file path, the script will default to using the provided `./data/examples-4-.csv` file.
+If you don't provide a CSV file path, the script will default to using the provided `./data/examples.csv` file.
 
 ### Web
 

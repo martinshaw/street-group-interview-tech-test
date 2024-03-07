@@ -20,7 +20,7 @@ class HomeownerNameCsvLoader
     protected $failedNameRows = [];
 
     /**
-     * For security reasons, we should only allow files to be loaded from a specific directory within this project on the server
+     * For security reasons, we should only allow files to be loaded from a specific directory on the server within this project or from the temporary uploads directory
      * 
      * @var string
      */
@@ -33,10 +33,21 @@ class HomeownerNameCsvLoader
      */
     private function validateFilePath(string $filePath): string
     {
+        $temporaryUploadsRoot = ini_get('upload_tmp_dir') ? ini_get('upload_tmp_dir') : sys_get_temp_dir();
+        $temporaryUploadsRootOnMac = '/private' . $temporaryUploadsRoot;
+
         $permittedRoot = realpath($this->permittedRoot);
+
         $resolvedPath = realpath(dirname($filePath)) === false ? false : realpath(dirname($filePath)) . DIRECTORY_SEPARATOR . basename($filePath);
 
-        if (strpos($resolvedPath, $permittedRoot) !== 0 || $resolvedPath === false) {
+        if (
+            (
+                strpos($resolvedPath, $permittedRoot) !== 0 &&
+                strpos($resolvedPath, $temporaryUploadsRoot) !== 0 &&
+                strpos($resolvedPath, $temporaryUploadsRootOnMac) !== 0
+            ) ||
+            $resolvedPath === false
+        ) {
             throw new PathOutsideOfPermittedRootException();
         }
 
