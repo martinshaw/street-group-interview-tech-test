@@ -20,13 +20,20 @@ class HomeownerNameCsvLoader
     protected $failedNameRows = [];
 
     /**
+     * For security reasons, we should only allow files to be loaded from a specific directory within this project on the server
+     * 
+     * @var string
+     */
+    protected $permittedRoot = __DIR__ . '/../data';
+
+    /**
      * @throws FileNotFoundException
      * @throws PathOutsideOfPermittedRootException
      * @return string
      */
     private function validateFilePath(string $filePath): string
     {
-        $permittedRoot = realpath(__DIR__ . '/../data');
+        $permittedRoot = realpath($this->permittedRoot);
         $resolvedPath = realpath(dirname($filePath)) === false ? false : realpath(dirname($filePath)) . DIRECTORY_SEPARATOR . basename($filePath);
 
         if (strpos($resolvedPath, $permittedRoot) !== 0 || $resolvedPath === false) {
@@ -80,7 +87,7 @@ class HomeownerNameCsvLoader
 
             if (empty($conjoiner) === false && empty($firstNameA)) {
                 $firstNameA = $firstNameB;
-                $firstNameB = "";
+                $firstNameB = null;
             }
 
             if ($conjoiner) {
@@ -101,6 +108,9 @@ class HomeownerNameCsvLoader
      */
     private function loadRowColumnsFromFile(string $filePath): array
     {
+        $this->successfulNameRows = [];
+        $this->failedNameRows = [];
+
         $file = fopen($filePath, 'r');
         $header = fgetcsv($file);
         $data = [];
@@ -110,27 +120,23 @@ class HomeownerNameCsvLoader
         }
         fclose($file);
 
-        $data = array_reduce($data, function ($carry, $row, $index) {
-            // if (empty($row['homeowner']) || $row === false) {
-            //     $this->failedNameRows[] = $index + 1;
-            //     return $carry;
-            // }
+        foreach ($data as $index => $row) {
+            if (empty($row['homeowner']) || $row === false) {
+                $this->failedNameRows[] = $index + 1;
+                continue;
+            }
 
-            // $parsedNames = $this->parseNameStringToObjects($row['homeowner']);
+            $parsedNames = $this->parseNameStringToObjects($row['homeowner']);
 
-            // if (empty($parsedNames)) {
-            //     $this->failedNameRows[] = $index + 1;
-            //     return $carry;
-            // }
+            if (empty($parsedNames)) {
+                $this->failedNameRows[] = $index + 1;
+                continue;
+            }
 
-            // return array_merge($carry, $parsedNames);
+            $this->successfulNameRows = array_merge($this->successfulNameRows, $parsedNames);
+        }
 
-            return $carry;
-        }, []);
-
-        $this->successfulNameRows = $data;
-
-        return $data;
+        return $this->successfulNameRows;
     }
 
     /**
@@ -142,14 +148,22 @@ class HomeownerNameCsvLoader
     {
         $filePath = $this->validateFilePath($filePath);
 
-        $nameStrings = $this->loadRowColumnsFromFile($filePath);
+        return $this->loadRowColumnsFromFile($filePath);
+    }
 
-        // TODO: Remove need for multiple loops by adding process of name string to initial loop in getRowColumnsFromFile
+    /**
+     * @return int[]
+     */
+    public function getFailedNameRows(): array
+    {
+        return $this->failedNameRows;
+    }
 
-        // $names = call_user_func_array('array_merge', array_map(function ($nameString) {
-        //     return $this->parseNameStringToObjects($nameString);
-        // }, $nameStrings));
-
-        return $nameStrings;
+    /**
+     * @return HomeownerName[]
+     */
+    public function getSuccessfulNameRows(): array
+    {
+        return $this->successfulNameRows;
     }
 }

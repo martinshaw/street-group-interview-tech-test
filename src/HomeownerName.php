@@ -50,9 +50,9 @@ class HomeownerName implements JsonSerializable {
     public function jsonSerialize(): array {
         return [
             'title' => $this->getTitle(),
-            'firstName' => $this->getFirstName(),
+            'first_name' => $this->getFirstName(),
             'initial' => $this->getInitial(),
-            'lastName' => $this->getLastName(),
+            'last_name' => $this->getLastName(),
         ];
     }
 }

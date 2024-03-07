@@ -6,6 +6,9 @@ use Martinshaw\StreetGroupInterviewTechTest\HomeownerNameCsvLoader;
 
 $loader = new HomeownerNameCsvLoader();
 
-var_dump($loader->load(__DIR__ . '/../data/examples-4-.csv'));
+$loader->load(__DIR__ . '/../data/examples-4-.csv');
+
+var_dump($loader->getSuccessfulNameRows());
+var_dump($loader->getFailedNameRows());
 
 exit;
