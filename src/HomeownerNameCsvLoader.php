@@ -82,7 +82,7 @@ class HomeownerNameCsvLoader
             '&',
         ];
 
-        $regex = '/^(?P<title>' . implode('|', $titles) . ')\s+[\.]?(?P<firstNameA>[A-Z][a-z]+)?\s*(?P<initial>[A-Z])?[\.]?\s+(?P<lastNameA>[A-Z][a-z]+)(?:\s+(?P<conjoiner>' . implode('|', $conjoiner) . ')\s+(?P<firstNameB>[A-Z][a-z]+)?\s*(?P<initial2>[A-Z])?[\.]?\s+(?P<lastNameB>[A-Z][a-z]+))?$/';
+        $regex = '/^(?P<title>' . implode('|', $titles) . ')\s+[\.]?(?P<firstNameA>[A-Za-z-]+)?\s*(?P<initial>[A-Z])?[\.]?\s+(?P<lastNameA>[A-Za-z-]+)(?:\s+(?P<conjoiner>' . implode('|', $conjoiner) . ')\s+(?P<firstNameB>[A-Za-z-]+)?\s*(?P<initial2>[A-Z])?[\.]?\s+(?P<lastNameB>[A-Za-z-]+))?$/';
 
         if (preg_match($regex, $nameString, $matches)) {
             $title = $matches['title'];
