@@ -60,26 +60,27 @@ class HomeownerNameCsvLoader
      */
     private function parseNameStringToObjects(string $nameString): array
     {
-        $titles = [ 'Mr', 'Mrs', 'Ms', 'Miss', 'Dr', 'Doctor', 'Prof', 'Professor', 'Rev', 'Reverend', 'Capt', 'Cpt', 'Captain', 'Sgt', 'Sergeant', 'Lt', 'Lieutenant', 'Sir', 'Lady', 'Lord', 'Dame', 'Madam', 'Mister' ];
-        $conjoiner = [ 'And', 'and\/or', 'and',  '&' ];
+        $titles = ['Mr', 'Mrs', 'Ms', 'Miss', 'Dr', 'Doctor', 'Prof', 'Professor', 'Rev', 'Reverend', 'Capt', 'Cpt', 'Captain', 'Sgt', 'Sergeant', 'Lt', 'Lieutenant', 'Sir', 'Lady', 'Lord', 'Dame', 'Madam', 'Mister'];
+        $conjoiner = ['And', 'and\/or', 'and',  '&'];
 
-        $regex = '/^(?P<titleA>Mr|Mrs|Ms|Miss|Dr|Doctor|Prof|Professor|Rev|Reverend|Capt|Cpt|Captain|Sgt|Sergeant|Lt|Lieutenant|Sir|Lady|Lord|Dame|Madam|Mister)[\.]?\s*(?P<firstNameA>[A-Za-z-]{2,})?\s*((?P<initialA>[A-Z])?[\.]?\s+)?(?P<lastNameA>[A-Za-z-]+)?(?:\s+(?P<conjoiner>
-        and|and\/or|and|&)\s+(?P<titleB>Mr|Mrs|Ms|Miss|Dr|Doctor|Prof|Professor|Rev|Reverend|Capt|Cpt|Captain|Sgt|Sergeant|Lt|Lieutenant|Sir|Lady|Lord|Dame|Madam|Mister)[\.]?\s*(?P<firstNameB>[A-Za-z-]{2,})?\s*(?P<initialB>[A-Z])?[\.]?\s+(?P<lastNameB>[A-Za-z-]+))?$/m';
+        $regex = '/^(?P<titleA>' . implode('|', $titles) . ')[\.]?\s*(?P<firstNameA>[A-Za-z-]{2,})?\s*((?P<initialA>[A-Z])?[\.]?\s+)?(?P<lastNameA>[A-Za-z-]+)?(?:\s+(?P<conjoiner>' . implode('|', $conjoiner) . ')\s+(?P<titleB>' . implode('|', $titles) . ')[\.]?\s*(?P<firstNameB>[A-Za-z-]{2,})?\s*(?P<initialB>[A-Z])?[\.]?\s+(?P<lastNameB>[A-Za-z-]+))?$/';
 
         if (preg_match($regex, $nameString, $matches)) {
-            $titleA = $matches['titleA'];
-            $firstNameA = $matches['firstNameA'];
-            $initialA = $matches['initialA'];
-            $lastNameA = empty($matches['lastNameA']) ? $matches['lastNameB'] : $matches['lastNameA'];
-            $conjoiner = $matches['conjoiner'];
-            $titleB = $matches['titleB'];
-            $firstNameB = $matches['firstNameB'];
-            $initialB = $matches['initialB'];
-            $lastNameB = $matches['lastNameB'];
+            $titleA = empty($matches['titleA']) ? null : $matches['titleA'];
+            $firstNameA = empty($matches['firstNameA']) ? null : $matches['firstNameA'];
+            $initialA = empty($matches['initialA']) ? null : $matches['initialA'];
+            $lastNameA = empty($matches['lastNameA']) ? null : $matches['lastNameA'];
+            $conjoiner = empty($matches['conjoiner']) ? null : $matches['conjoiner'];
+            $titleB = empty($matches['titleB']) ? null : $matches['titleB'];
+            $firstNameB = empty($matches['firstNameB']) ? null : $matches['firstNameB'];
+            $initialB = empty($matches['initialB']) ? null : $matches['initialB'];
+            $lastNameB = empty($matches['lastNameB']) ? null : $matches['lastNameB'];
 
-            if ($conjoiner !== null && $firstNameA === null && $firstNameB !== null) {
+            $lastNameA = empty($matches['lastNameA']) ? $matches['lastNameB'] : $matches['lastNameA'];
+
+            if (empty($conjoiner) === false && empty($firstNameA)) {
                 $firstNameA = $firstNameB;
-                $firstNameB = null;
+                $firstNameB = "";
             }
 
             if ($conjoiner) {
@@ -96,7 +97,7 @@ class HomeownerNameCsvLoader
     }
 
     /**
-     * @return string[]
+     * @return HomeownerName[]
      */
     private function loadRowColumnsFromFile(string $filePath): array
     {
@@ -109,21 +110,23 @@ class HomeownerNameCsvLoader
         }
         fclose($file);
 
-        $data = array_map(function ($row, $index) {
-            if (empty($row['homeowner']) || $row === false) {
-                $this->failedNameRows[] = $index + 1;
-                return null;
-            }
+        $data = array_reduce($data, function ($carry, $row, $index) {
+            // if (empty($row['homeowner']) || $row === false) {
+            //     $this->failedNameRows[] = $index + 1;
+            //     return $carry;
+            // }
 
-            return is_null($row['homeowner']) ? null : $this->parseNameStringToObjects($row['homeowner']);
-        }, $data, array_keys($data));
+            // $parsedNames = $this->parseNameStringToObjects($row['homeowner']);
 
-        var_dump($data);
-        exit;
+            // if (empty($parsedNames)) {
+            //     $this->failedNameRows[] = $index + 1;
+            //     return $carry;
+            // }
 
-        $data = array_filter($data, function ($row) {
-            return $row !== null;
-        });
+            // return array_merge($carry, $parsedNames);
+
+            return $carry;
+        }, []);
 
         $this->successfulNameRows = $data;
 
