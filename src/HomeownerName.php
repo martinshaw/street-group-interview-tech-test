@@ -4,10 +4,25 @@ namespace Martinshaw\StreetGroupInterviewTechTest;
 use JsonSerializable;
 
 class HomeownerName implements JsonSerializable {
-    private string $title;
-    private ?string $firstName = null;
-    private ?string $initial = null;
-    private string $lastName;
+    /**
+     * @var string
+     */
+    private $title;
+
+    /**
+     * @var string|null
+     */
+    private $firstName = null;
+
+    /**
+     * @var string|null
+     */
+    private $initial = null;
+
+    /**
+     * @var string
+     */
+    private $lastName;
     
     public function __construct(string $title, ?string $firstName, ?string $initial, string $lastName) {
         $this->title = $title;
