@@ -1,12 +1,12 @@
 <?php
 require __DIR__ . '/../vendor/autoload.php';
 
-use Martinshaw\StreetGroupInterviewTechTest\HomeownerName;
 use Martinshaw\StreetGroupInterviewTechTest\HomeownerNameCsvLoader;
 
-$loader = new HomeownerNameCsvLoader();
+$filePathToLoad = empty($argv[1]) ? __DIR__ . '/../data/examples-4-.csv' : $argv[1];
 
-$loader->load(__DIR__ . '/../data/examples-4-.csv');
+$loader = new HomeownerNameCsvLoader();
+$loader->load($filePathToLoad);
 
 var_dump($loader->getSuccessfulNameRows());
 var_dump($loader->getFailedNameRows());
