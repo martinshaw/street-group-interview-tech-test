@@ -60,57 +60,37 @@ class HomeownerNameCsvLoader
      */
     private function parseNameStringToObjects(string $nameString): array
     {
-        $titles = [
-            'Mr',
-            'Mrs',
-            'Ms',
-            'Miss',
-            'Dr',
-            'Prof',
-            'Rev',
-            'Capt',
-            'Lt',
-            'Sir',
-            'Lady',
-            'Lord',
-            'Dame',
-            'Mister',
-        ];
+        $titles = [ 'Mr', 'Mrs', 'Ms', 'Miss', 'Dr', 'Doctor', 'Prof', 'Professor', 'Rev', 'Reverend', 'Capt', 'Cpt', 'Captain', 'Sgt', 'Sergeant', 'Lt', 'Lieutenant', 'Sir', 'Lady', 'Lord', 'Dame', 'Madam', 'Mister' ];
+        $conjoiner = [ 'And', 'and\/or', 'and',  '&' ];
 
-        $conjoiner = [
-            'and',
-            '&',
-        ];
-
-        $regex = '/^(?P<title>' . implode('|', $titles) . ')\s+[\.]?(?P<firstNameA>[A-Za-z-]+)?\s*(?P<initial>[A-Z])?[\.]?\s+(?P<lastNameA>[A-Za-z-]+)(?:\s+(?P<conjoiner>' . implode('|', $conjoiner) . ')\s+(?P<firstNameB>[A-Za-z-]+)?\s*(?P<initial2>[A-Z])?[\.]?\s+(?P<lastNameB>[A-Za-z-]+))?$/';
+        $regex = '/^(?P<titleA>Mr|Mrs|Ms|Miss|Dr|Doctor|Prof|Professor|Rev|Reverend|Capt|Cpt|Captain|Sgt|Sergeant|Lt|Lieutenant|Sir|Lady|Lord|Dame|Madam|Mister)[\.]?\s*(?P<firstNameA>[A-Za-z-]{2,})?\s*((?P<initialA>[A-Z])?[\.]?\s+)?(?P<lastNameA>[A-Za-z-]+)?(?:\s+(?P<conjoiner>
+        and|and\/or|and|&)\s+(?P<titleB>Mr|Mrs|Ms|Miss|Dr|Doctor|Prof|Professor|Rev|Reverend|Capt|Cpt|Captain|Sgt|Sergeant|Lt|Lieutenant|Sir|Lady|Lord|Dame|Madam|Mister)[\.]?\s*(?P<firstNameB>[A-Za-z-]{2,})?\s*(?P<initialB>[A-Z])?[\.]?\s+(?P<lastNameB>[A-Za-z-]+))?$/m';
 
         if (preg_match($regex, $nameString, $matches)) {
-            $title = $matches['title'];
+            $titleA = $matches['titleA'];
             $firstNameA = $matches['firstNameA'];
-            $initial = $matches['initial'];
-            $lastNameA = $matches['lastNameA'];
+            $initialA = $matches['initialA'];
+            $lastNameA = empty($matches['lastNameA']) ? $matches['lastNameB'] : $matches['lastNameA'];
             $conjoiner = $matches['conjoiner'];
+            $titleB = $matches['titleB'];
             $firstNameB = $matches['firstNameB'];
-            $initial2 = $matches['initial2'];
+            $initialB = $matches['initialB'];
             $lastNameB = $matches['lastNameB'];
 
-            if ($conjoiner) {
-                var_dump([
-                    new HomeownerName($title, $firstNameA, $initial, $lastNameA),
-                    new HomeownerName($title, $firstNameB, $initial2, $lastNameB),
-                ]);
-
-                return [];
+            if ($conjoiner !== null && $firstNameA === null && $firstNameB !== null) {
+                $firstNameA = $firstNameB;
+                $firstNameB = null;
             }
 
-            var_dump([
-                new HomeownerName($title, $firstNameA, $initial, $lastNameA),
-            ]);
+            if ($conjoiner) {
+                return [
+                    new HomeownerName($titleA, $firstNameA, $initialA, $lastNameA),
+                    new HomeownerName($titleB, $firstNameB, $initialB, $lastNameB),
+                ];
+            }
 
-            return [];
+            return [new HomeownerName($titleA, $firstNameA, $initialA, $lastNameA)];
         }
-
-        var_dump('failed', $nameString);
 
         return [];
     }
