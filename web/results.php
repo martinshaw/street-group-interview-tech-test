@@ -55,14 +55,14 @@ $failedNameRows = $errorMessage === false ? $loader->getFailedNameRows() : [];
             </tr>
         </thead>
         <tbody>
-            <?php foreach ($successfulNameRows as $row) : ?>
+            <?php foreach ($successfulNameRows as $row) { ?>
                 <tr>
-                    <td><?= $row->getTitle() ?></td>
-                    <td><?= $row->getInitial() ?></td>
-                    <td><?= $row->getFirstName() ?></td>
-                    <td><?= $row->getLastName() ?></td>
+                    <td><?php echo $row->getTitle(); ?></td>
+                    <td><?php echo $row->getInitial(); ?></td>
+                    <td><?php echo $row->getFirstName(); ?></td>
+                    <td><?php echo $row->getLastName(); ?></td>
                 </tr>
-            <?php endforeach; ?>
+            <?php } ?>
         </tbody>
     </table>
 
@@ -71,9 +71,9 @@ $failedNameRows = $errorMessage === false ? $loader->getFailedNameRows() : [];
     <?php if (!empty($failedNameRows)) { ?>
         <p class="error-message">The following rows failed to parse successfully:
         <ul>
-            <?php foreach ($failedNameRows as $row) : ?>
-                <li>Row <?= $row ?></li>
-            <?php endforeach; ?>
+            <?php foreach ($failedNameRows as $row) { ?>
+                <li>Row <?php echo $row; ?></li>
+            <?php } ?>
         </ul>
         </p>
     <?php } ?>
